@@ -1,268 +1,268 @@
-# Flask Authentication System
+# Flask Accounts (Reusable Auth Module)
 
-A full-stack authentication system built with Flask, PostgreSQL, and modern frontend UI.
-This project demonstrates secure user registration, login, email verification, and strong password validation.
+A modular, reusable Flask authentication system with:
 
----
+* User registration
+* Login / logout
+* Email verification (with expiration + resend)
+* Password hashing (Werkzeug)
+* PostgreSQL backend
+* Config-driven email (SMTP or terminal mode)
 
-## 🚀 Features
+Designed to be **plug-and-play in future Flask applications** using:
 
-* 🔐 User Registration & Login
-* 📧 Email Verification (6-digit code system)
-* 🔑 Secure Password Hashing (Werkzeug)
-* 🛡️ Strong Password Requirements:
-
-  * Minimum length (8+ characters)
-  * Uppercase + lowercase letters
-  * Numbers
-  * Special characters
-* 🎨 Modern UI with:
-
-  * Animated gradient background
-  * Glassmorphism design
-  * Live password validation
-  * Show/Hide password toggle
-* 🗄️ PostgreSQL database integration
-* 🔁 Verification code expiration & resend support
-
----
-
-## 🧠 How It Works
-
-### Registration Flow
-
-1. User submits registration form
-2. Password is validated (frontend + backend)
-3. Password is hashed using `werkzeug.security`
-4. A 6-digit verification code is generated
-5. Code is stored in the database with expiration
-6. Code is sent via:
-
-   * Terminal (dev mode)
-   * Email (production mode)
-7. User is redirected to verification page
-
----
-
-### Email Verification Flow
-
-1. User enters 6-digit code
-2. Backend checks:
-
-   * Code matches
-   * Code is not expired
-3. If valid:
-
-   * `email_verified = TRUE`
-   * Code is cleared
-4. User can now log in
-
----
-
-### Login Flow
-
-1. User submits username/email + password
-2. Backend:
-
-   * Finds user
-   * Verifies password hash
-   * Checks `email_verified`
-3. If not verified → redirect to verification
-4. If valid → login successful
-
----
-
-## 🗄️ Database Schema
-
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    firstname VARCHAR(80) NOT NULL,
-    lastname VARCHAR(80) NOT NULL,
-    username VARCHAR(80) UNIQUE NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    email_verified BOOLEAN DEFAULT FALSE,
-    verification_code VARCHAR(6),
-    verification_expires_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+```python
+from app.auth import init_auth
+init_auth(app)
 ```
 
 ---
 
-## ⚙️ Setup Instructions
-
-### 1. Clone the repository
+## 🚀 Quick Start
 
 ```bash
 git clone https://github.com/GabeKL22/flask_accounts.git
 cd flask_accounts
-```
 
----
-
-### 2. Create virtual environment
-
-```bash
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate
-```
 
----
-
-### 3. Install dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-### 4. Configure environment
+## ⚙️ Configuration
 
-Copy the example config:
+Edit:
 
-```bash
-cp app/config.example.py app/config.py
+```
+app/config.py
 ```
 
-Then edit:
+Set your values:
 
 ```python
+SECRET_KEY = "your-secret-key"
+
+# PostgreSQL
 DB_HOST = "localhost"
 DB_NAME = "accountdb"
-DB_USER = "your_user"
-DB_PASSWORD = "your_password"
+DB_USER = "accountuser"
+DB_PASSWORD = "yourpassword"
+
+# Email (SMTP)
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+SMTP_USERNAME = "youremail@gmail.com"
+SMTP_PASSWORD = "your_app_password"
+SMTP_FROM_EMAIL = "youremail@gmail.com"
+
+# Dev mode
+USE_TERMINAL_EMAIL = True
 ```
+
+### Dev Mode Behavior
+
+| Setting | Behavior                             |
+| ------- | ------------------------------------ |
+| `True`  | Prints verification code in terminal |
+| `False` | Sends real email via SMTP            |
 
 ---
 
-### 5. Setup PostgreSQL
+## 🗄️ PostgreSQL Database Setup
 
-Create database and user:
+### 1. Open PostgreSQL
 
 ```bash
 sudo -u postgres psql
 ```
 
+---
+
+### 2. Create database
+
 ```sql
 CREATE DATABASE accountdb;
-CREATE USER accountuser WITH PASSWORD 'yourpassword';
-GRANT ALL PRIVILEGES ON DATABASE accountdb TO accountuser;
-```
-
-Run schema:
-
-```bash
-psql -h localhost -U accountuser -d accountdb -f schema.sql
 ```
 
 ---
 
-### 6. Run the app
+### 3. Create user (optional but recommended)
+
+```sql
+CREATE USER accountuser WITH PASSWORD 'yourpassword';
+ALTER ROLE accountuser SET client_encoding TO 'utf8';
+ALTER ROLE accountuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE accountuser SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE accountdb TO accountuser;
+```
+
+---
+
+### 4. Run schema
+
+From your project root:
+
+```bash
+psql -U accountuser -d accountdb -f schema.sql
+```
+
+---
+
+## ▶️ Run the App
 
 ```bash
 python run.py
 ```
 
-Visit:
+Then open:
 
 ```
-http://127.0.0.1:5000
+http://<ip>/auth/register
 ```
 
 ---
 
-## 📧 Email Setup
+## 🔐 Authentication Flow
 
-### Development (default)
-
-Uses terminal output:
-
-```python
-USE_TERMINAL_EMAIL = True
-```
-
-Verification code will print in console.
-
----
-
-### Production (real email)
-
-Set:
-
-```python
-USE_TERMINAL_EMAIL = False
-```
-
-Configure SMTP (example Gmail):
-
-```python
-SMTP_USERNAME = "your_email@gmail.com"
-SMTP_PASSWORD = "your_app_password"
-```
-
-⚠️ Use an **App Password**, not your real password.
-
----
-
-## 🔒 Security Notes
-
-* Passwords are hashed (never stored in plaintext)
-* Email verification prevents fake accounts
-* Verification codes expire (10 minutes)
-* Sensitive config is excluded via `.gitignore`
+1. Register a new account
+2. Receive verification code (terminal or email)
+3. Verify email
+4. Login
+5. Access protected routes
 
 ---
 
 ## 📁 Project Structure
 
-```flask_accounts/
+```
+project/
 │
-├── LICENSE
-├── README.md
 ├── run.py
 ├── requirements.txt
+├── schema.sql
 │
-├── app/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── db.py
-│   ├── templates/
-│   │   ├── login.html
-│   │   ├── register.html
-│   │   └── verify_email.html
-│   └── auth/
-│       ├── __init__.py
-│       ├── routes.py
-│       ├── service.py
-│       └── validators.py
+└── app/
+    ├── __init__.py
+    ├── config.py
+    ├── db.py
+    │
+    └── auth/
+        ├── __init__.py        # init_auth(app)
+        ├── routes.py
+        ├── service.py
+        ├── validators.py
+        ├── session.py
+        │
+        └── templates/
+            └── auth/
+                ├── login.html
+                ├── register.html
+                └── verify_email.html
 ```
 
 ---
 
-## 💡 Future Improvements
+## 🔌 Using This in Another Flask App
 
-* JWT authentication / session management
-* Password reset via email
-* Rate limiting (prevent brute force)
-* OAuth (Google login)
-* Docker deployment
-* Cloud hosting (AWS / Render)
+### 1. Copy module
+
+Copy:
+
+```
+app/auth/
+schema.sql
+```
+
+into your new project.
+
+---
+
+### 2. Add required config
+
+Your app must define:
+
+```python
+SECRET_KEY
+DB_HOST
+DB_NAME
+DB_USER
+DB_PASSWORD
+SMTP_HOST
+SMTP_PORT
+SMTP_USERNAME
+SMTP_PASSWORD
+SMTP_FROM_EMAIL
+USE_TERMINAL_EMAIL
+```
 
 ---
 
-## 👨‍💻 Author
+### 3. Initialize auth
 
-Built as a full-stack authentication system to demonstrate:
+```python
+from flask import Flask
+from app.auth import init_auth
 
-* Backend engineering
-* Secure auth flows
-* Database integration
-* Frontend UX
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    init_auth(app)
+
+    return app
+```
 
 ---
+
+### 4. Routes provided
+
+* `/auth/register`
+* `/auth/login`
+* `/auth/logout`
+* `/auth/verify-email`
+* `/auth/resend-code`
+
+---
+
+## 🧠 Example Protected Route
+
+```python
+from flask import session, redirect, url_for
+
+@app.route("/dashboard")
+def dashboard():
+    if "user_id" not in session:
+        return redirect(url_for("auth.show_login"))
+    return "Welcome to your dashboard"
+```
+
+---
+
+## ⚠️ Notes
+
+* Uses session-based authentication (no JWT)
+* Uses raw SQL via `psycopg2`
+* Designed for extension into SaaS applications
+
+---
+
+## 🚀 Future Improvements
+
+* Password reset flow
+* JWT / token-based auth
+* OAuth (Google, GitHub)
+* SQLAlchemy migration
+* Packaging for pip install
+
+---
+
+## 🧑‍💻 Author
+
+Gabriel Leffew
+
 
 ## 📜 License
 

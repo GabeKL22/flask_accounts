@@ -9,4 +9,4 @@ auth_bp = Blueprint(
 def init_auth(app):
     app.register_blueprint(auth_bp, url_prefix="/auth")
 
-from . import routes
+from app.auth import routes
