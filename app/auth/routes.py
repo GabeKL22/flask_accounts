@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 from flask import (
-    Blueprint,
     current_app,
     flash,
     redirect,
@@ -13,12 +12,11 @@ from flask import (
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from app.auth import auth_bp
 from app.auth.service import generate_verification_code, send_verification_email
+from app.auth.session import login_user, logout_user
 from app.auth.validators import is_valid_password
 from app.db import get_db_connection
-
-auth_bp = Blueprint("auth", __name__)
-
 
 @auth_bp.route("/")
 def home():
@@ -28,7 +26,7 @@ def home():
 @auth_bp.route("/register", methods=["GET", "POST"])
 def show_register():
     if request.method == "GET":
-        return render_template("register.html")
+        return render_template("auth/register.html")
 
     firstname = request.form.get("firstname", "").strip()
     lastname = request.form.get("lastname", "").strip()
@@ -136,7 +134,7 @@ def verify_email():
         return redirect(url_for("auth.show_register"))
 
     if request.method == "GET":
-        return render_template("verify_email.html", email=email)
+        return render_template("auth/verify_email.html", email=email)
 
     code = request.form.get("verification_code", "").strip()
 
@@ -213,7 +211,7 @@ def verify_email():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def show_login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("auth/login.html")
 
     username_or_email = request.form.get("username_or_email", "").strip()
     password = request.form.get("password", "")
@@ -253,11 +251,7 @@ def show_login():
             flash("Please verify your email before logging in.", "error")
             return redirect(url_for("auth.verify_email"))
 
-        session["user_id"] = user["id"]
-        session["username"] = user["username"]
-        session["email"] = user["email"]
-        session["firstname"] = user["firstname"]
-        session["lastname"] = user["lastname"]
+        login_user(user)
 
         flash("Logged in successfully.", "success")
         return f"Welcome, {user['firstname']} {user['lastname']}!"
@@ -275,12 +269,7 @@ def show_login():
 
 @auth_bp.route("/logout")
 def logout():
-    session.pop("user_id", None)
-    session.pop("username", None)
-    session.pop("email", None)
-    session.pop("firstname", None)
-    session.pop("lastname", None)
-    session.pop("pending_verification_email", None)
+    logout_user()
 
     flash("Logged out successfully.", "success")
     return redirect(url_for("auth.show_login"))
