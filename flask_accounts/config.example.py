@@ -17,6 +17,14 @@ class Config:
     SMTP_PASSWORD = "your_app_password"
     SMTP_FROM_EMAIL = "youremail@gmail.com"
 
+    # Other useful configurations
+    LOGIN_REDIRECT = "search" # Must have a route defined
+    LOGIN_BANNER = "Welcome Back"
+    LOGIN_BANNER_MSG = "Login to your account"
+    REGISTER_BANNER = "Create Account"
+    REGISTER_BANNER_MSG = "Register to get started"
+    CSS_STYLE_FILE = ""
+
     # Dev mode:
     # True  -> print verification code in terminal instead of sending email
     # False -> actually send email through SMTP

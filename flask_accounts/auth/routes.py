@@ -26,7 +26,7 @@ def home():
 @auth_bp.route("/register", methods=["GET", "POST"])
 def show_register():
     if request.method == "GET":
-        return render_template("auth/register.html")
+        return render_template("auth/register.html", register_banner=current_app.config.get("REGISTER_BANNER", "Create Account"), register_banner_msg=current_app.config.get("REGISTER_BANNER_MSG", "Register to get started"))
 
     firstname = request.form.get("firstname", "").strip()
     lastname = request.form.get("lastname", "").strip()
@@ -211,7 +211,7 @@ def verify_email():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def show_login():
     if request.method == "GET":
-        return render_template("auth/login.html")
+        return render_template("auth/login.html", login_banner=current_app.config.get("LOGIN_BANNER", "Welcome Back"), login_banner_msg=current_app.config.get("LOGIN_BANNER_MSG", "Login to your account"))
 
     username_or_email = request.form.get("username_or_email", "").strip()
     password = request.form.get("password", "")
@@ -254,7 +254,12 @@ def show_login():
         login_user(user)
 
         flash("Logged in successfully.", "success")
-        return f"Welcome, {user['firstname']} {user['lastname']}!"
+        redirect_target = current_app.config.get("LOGIN_REDIRECT", "/")
+
+        if redirect_target.startswith("/"):
+            return redirect(redirect_target)
+
+        return redirect(url_for(redirect_target))
 
     except Exception as e:
         flash(f"Login error: {e}", "error")

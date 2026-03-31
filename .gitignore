@@ -2,6 +2,8 @@
 __pycache__/
 *.pyc
 example_app
+run.py
+notes.txt
 
 # Virtual environment
 venv/
@@ -15,3 +17,4 @@ config.py
 
 # pip stuff
 *.egg-info
+*dist

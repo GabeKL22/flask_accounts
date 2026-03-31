@@ -134,8 +134,8 @@
 </head>
 <body>
     <div class="card">
-        <h1>Welcome Back</h1>
-        <p class="subtitle">Login to your account</p>
+        <h1>{{ login_banner }}</h1>
+        <p class="subtitle">{{ login_banner_msg }}</p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

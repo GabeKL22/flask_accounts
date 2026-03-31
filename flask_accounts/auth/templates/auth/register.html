@@ -193,8 +193,8 @@
 
 <body>
 <div class="card">
-    <h1>Create Account</h1>
-    <div class="subtitle">Register to get started</div>
+    <h1>{{ register_banner }}</h1>
+    <div class="subtitle">{{ register_banner_msg }}</div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
