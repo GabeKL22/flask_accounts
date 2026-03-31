@@ -144,7 +144,7 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <form action="/login" method="POST">
+        <form method="POST" action="{{ url_for('auth.show_login') }}">
             <div class="form-group">
                 <label for="username_or_email">Username or Email</label>
                 <input
@@ -171,7 +171,7 @@
         </form>
 
         <p class="bottom-text">
-            Need an account? <a href="/register">Register</a>
+            Need an account? <a href="{{ url_for('auth.show_register') }}">Register</a>
         </p>
     </div>
 </body>

@@ -97,7 +97,7 @@
           {% endif %}
         {% endwith %}
 
-        <form action="/verify-email" method="POST">
+        <form method="POST" action="{{ url_for('auth.verify_email') }}">
             <div class="form-group">
                 <input
                     type="text"
@@ -110,7 +110,7 @@
             <button type="submit">Verify Email</button>
         </form>
 
-        <form action="/resend-code" method="POST">
+        <form method="POST" action="{{ url_for('auth.resend_code') }}">
             <button type="submit" class="secondary-btn">Resend Code</button>
         </form>
     </div>

@@ -218,19 +218,26 @@ SMTP_PASSWORD = "your_app_password"
 
 ## 📁 Project Structure
 
-```text
-project/
+```flask_accounts/
 │
+├── LICENSE
+├── README.md
 ├── run.py
 ├── requirements.txt
-├── templates/
-│   ├── login.html
-│   ├── register.html
-│   └── verify_email.html
 │
-└── app/
-    ├── __init__.py
-    └── config.py
+├── app/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── db.py
+│   ├── templates/
+│   │   ├── login.html
+│   │   ├── register.html
+│   │   └── verify_email.html
+│   └── auth/
+│       ├── __init__.py
+│       ├── routes.py
+│       ├── service.py
+│       └── validators.py
 ```
 
 ---
