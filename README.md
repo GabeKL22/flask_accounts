@@ -9,10 +9,10 @@ A modular, reusable Flask authentication system with:
 * PostgreSQL backend
 * Config-driven email (SMTP or terminal mode)
 
-Designed to be **plug-and-play in future Flask applications** using:
+Designed to be **plug-and-play in Flask applications** using:
 
 ```python
-from app.auth import init_auth
+from flask_accounts import init_auth
 init_auth(app)
 ```
 
@@ -150,11 +150,10 @@ http://<ip>/auth/register
 ```
 project/
 │
-├── run.py
 ├── requirements.txt
 ├── schema.sql
 │
-└── app/
+└── flask_accounts/
     ├── __init__.py
     ├── config.py
     ├── db.py
@@ -165,6 +164,9 @@ project/
         ├── service.py
         ├── validators.py
         ├── session.py
+        │
+        ├── static/
+        │   ├── auth.css
         │
         └── templates/
             └── auth/
@@ -177,7 +179,19 @@ project/
 
 ## 🔌 Using This in Another Flask App
 
-### 1. Copy module
+### 1a. Install module
+
+Run:
+
+```
+pip install flask_accounts
+```
+
+Done.
+
+---
+
+### 1b. Copy module
 
 Copy:
 
@@ -190,12 +204,6 @@ into your new project.
 
 ---
 
-### 1.1 PIP install module (from top directory)
-```
-pip install -e .
-```
-
----
 
 ### 2. Add required config
 
@@ -221,7 +229,10 @@ USE_TERMINAL_EMAIL
 
 ```python
 from flask import Flask
-from app.auth import init_auth
+from flask_accounts import init_auth
+
+class Config:
+    # Your Configuration (Required)
 
 def create_app():
     app = Flask(__name__)
@@ -272,7 +283,6 @@ def dashboard():
 * JWT / token-based auth
 * OAuth (Google, GitHub)
 * SQLAlchemy migration
-* Packaging for pip install
 
 ---
 
