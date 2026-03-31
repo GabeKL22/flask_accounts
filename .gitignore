@@ -4,6 +4,7 @@ __pycache__/
 example_app
 run.py
 notes.txt
+pypi.txt
 
 # Virtual environment
 venv/

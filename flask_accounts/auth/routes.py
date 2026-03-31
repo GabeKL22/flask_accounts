@@ -18,6 +18,14 @@ from flask_accounts.auth.session import login_user, logout_user
 from flask_accounts.auth.validators import is_valid_password
 from flask_accounts.db import get_db_connection
 
+def css_style():
+    custom_css = current_app.config.get("AUTH_CUSTOM_CSS")
+    auth_custom_css = None
+
+    if custom_css:
+        auth_custom_css = url_for("static", filename=custom_css)
+    return auth_custom_css
+
 @auth_bp.route("/")
 def home():
     return redirect(url_for("auth.show_login"))
@@ -26,7 +34,7 @@ def home():
 @auth_bp.route("/register", methods=["GET", "POST"])
 def show_register():
     if request.method == "GET":
-        return render_template("auth/register.html", register_banner=current_app.config.get("REGISTER_BANNER", "Create Account"), register_banner_msg=current_app.config.get("REGISTER_BANNER_MSG", "Register to get started"))
+        return render_template("auth/register.html", register_banner=current_app.config.get("REGISTER_BANNER", "Create Account"), register_banner_msg=current_app.config.get("REGISTER_BANNER_MSG", "Register to get started"), auth_custom_css=css_style())
 
     firstname = request.form.get("firstname", "").strip()
     lastname = request.form.get("lastname", "").strip()
@@ -134,7 +142,7 @@ def verify_email():
         return redirect(url_for("auth.show_register"))
 
     if request.method == "GET":
-        return render_template("auth/verify_email.html", email=email)
+        return render_template("auth/verify_email.html", email=email, auth_custom_css=css_style())
 
     code = request.form.get("verification_code", "").strip()
 
@@ -211,7 +219,7 @@ def verify_email():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def show_login():
     if request.method == "GET":
-        return render_template("auth/login.html", login_banner=current_app.config.get("LOGIN_BANNER", "Welcome Back"), login_banner_msg=current_app.config.get("LOGIN_BANNER_MSG", "Login to your account"))
+        return render_template("auth/login.html", login_banner=current_app.config.get("LOGIN_BANNER", "Welcome Back"), login_banner_msg=current_app.config.get("LOGIN_BANNER_MSG", "Login to your account"), auth_custom_css=css_style())
 
     username_or_email = request.form.get("username_or_email", "").strip()
     password = request.form.get("password", "")

@@ -66,7 +66,7 @@ LOGIN_BANNER = "Welcome Back"
 LOGIN_BANNER_MSG = "Login to your account"
 REGISTER_BANNER = "Create Account"
 REGISTER_BANNER_MSG = "Register to get started"
-CSS_STYLE_FILE = ""
+AUTH_CUSTOM_CSS = "custom.css" # Must live inside of a static folder
 
 # Dev mode
 USE_TERMINAL_EMAIL = True
