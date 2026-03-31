@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.pyc
+example_app
 
 # Virtual environment
 venv/
@@ -11,3 +12,6 @@ config.py
 
 # OS stuff
 .DS_Store
+
+# pip stuff
+*.egg-info

@@ -180,6 +180,13 @@ into your new project.
 
 ---
 
+### 1.1 PIP install module (from top directory)
+```
+pip install -e .
+```
+
+---
+
 ### 2. Add required config
 
 Your app must define:

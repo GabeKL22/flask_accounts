@@ -12,11 +12,11 @@ from flask import (
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from app.auth import auth_bp
-from app.auth.service import generate_verification_code, send_verification_email
-from app.auth.session import login_user, logout_user
-from app.auth.validators import is_valid_password
-from app.db import get_db_connection
+from flask_accounts.auth import auth_bp
+from flask_accounts.auth.service import generate_verification_code, send_verification_email
+from flask_accounts.auth.session import login_user, logout_user
+from flask_accounts.auth.validators import is_valid_password
+from flask_accounts.db import get_db_connection
 
 @auth_bp.route("/")
 def home():
