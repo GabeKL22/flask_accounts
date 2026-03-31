@@ -18,7 +18,9 @@ class Config:
     SMTP_FROM_EMAIL = "youremail@gmail.com"
 
     # Other useful configurations
-    LOGIN_REDIRECT = "search" # Must have a route defined
+    LOGIN_REDIRECT = "home" # Must have a route defined
+    REGISTER_REDIRECT = "verify_email" # Must have a route defined
+    VERIFY_EMAIL_REDIRECT = "login" # Must have a route defined
     LOGIN_BANNER = "Welcome Back"
     LOGIN_BANNER_MSG = "Login to your account"
     REGISTER_BANNER = "Create Account"

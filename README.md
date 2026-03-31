@@ -58,6 +58,16 @@ SMTP_USERNAME = "youremail@gmail.com"
 SMTP_PASSWORD = "your_app_password"
 SMTP_FROM_EMAIL = "youremail@gmail.com"
 
+# Other useful configurations (UI)
+LOGIN_REDIRECT = "home" # Must have a route defined
+REGISTER_REDIRECT = "verify_email" # Must have a route defined
+VERIFY_EMAIL_REDIRECT = "login" # Must have a route defined
+LOGIN_BANNER = "Welcome Back"
+LOGIN_BANNER_MSG = "Login to your account"
+REGISTER_BANNER = "Create Account"
+REGISTER_BANNER_MSG = "Register to get started"
+CSS_STYLE_FILE = ""
+
 # Dev mode
 USE_TERMINAL_EMAIL = True
 ```
