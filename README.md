@@ -1,261 +1,162 @@
-# Flask Accounts (Reusable Auth Module)
+# Flask Accounts
 
-A modular, reusable Flask authentication system with:
+> Plug-and-play authentication for Flask with UI, database, and email verification included.
 
-* User registration
-* Login / logout
-* Email verification (with expiration + resend)
-* Password hashing (Werkzeug)
-* PostgreSQL backend
-* Config-driven email (SMTP or terminal mode)
+A modular, reusable authentication system for Flask applications.
 
-Designed to be **plug-and-play in Flask applications** using:
+## ✨ Features
 
-```python
-from flask_accounts import init_auth
-init_auth(app)
-```
+- User registration
+- Login / logout
+- Email verification (with expiration + resend)
+- Password hashing (Werkzeug)
+- PostgreSQL backend
+- Session-based authentication
+- Configurable UI (banners, redirects, custom CSS)
+- SMTP email support (or terminal mode for development)
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Installation
 
 ```bash
-git clone https://github.com/GabeKL22/flask_accounts.git
-cd flask_accounts
-
-python -m venv venv
-source venv/bin/activate
-
-pip install -r requirements.txt
+pip install flask-accounts
 ```
 
 ---
 
-## ⚙️ Configuration
-
-Edit:
-
-```
-app/config.py
-```
-
-Set your values:
-
-```python
-SECRET_KEY = "your-secret-key"
-
-# PostgreSQL
-DB_HOST = "localhost"
-DB_NAME = "accountdb"
-DB_USER = "accountuser"
-DB_PASSWORD = "yourpassword"
-
-# Email (SMTP)
-SMTP_HOST = "smtp.gmail.com"
-SMTP_PORT = 587
-SMTP_USERNAME = "youremail@gmail.com"
-SMTP_PASSWORD = "your_app_password"
-SMTP_FROM_EMAIL = "youremail@gmail.com"
-
-# Other useful configurations (UI)
-LOGIN_REDIRECT = "home" # Must have a route defined
-REGISTER_REDIRECT = "verify_email" # Must have a route defined
-VERIFY_EMAIL_REDIRECT = "login" # Must have a route defined
-LOGIN_BANNER = "Welcome Back"
-LOGIN_BANNER_MSG = "Login to your account"
-REGISTER_BANNER = "Create Account"
-REGISTER_BANNER_MSG = "Register to get started"
-AUTH_CUSTOM_CSS = "custom.css" # Must live inside of a static folder
-
-# Dev mode
-USE_TERMINAL_EMAIL = True
-```
-
-### Dev Mode Behavior
-
-| Setting | Behavior                             |
-| ------- | ------------------------------------ |
-| `True`  | Prints verification code in terminal |
-| `False` | Sends real email via SMTP            |
-
----
-
-## 🗄️ PostgreSQL Database Setup
-
-### 1. Open PostgreSQL
-
-```bash
-sudo -u postgres psql
-```
-
----
-
-### 2. Create database
-
-```sql
-CREATE DATABASE accountdb;
-```
-
----
-
-### 3. Create user (optional but recommended)
-
-```sql
-CREATE USER accountuser WITH PASSWORD 'yourpassword';
-ALTER ROLE accountuser SET client_encoding TO 'utf8';
-ALTER ROLE accountuser SET default_transaction_isolation TO 'read committed';
-ALTER ROLE accountuser SET timezone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE accountdb TO accountuser;
-```
-
----
-
-### 4. Run schema
-
-From your project root:
-
-```bash
-psql -U accountuser -d accountdb -f schema.sql
-```
-
----
-
-## ▶️ Run the App
-
-```bash
-python run.py
-```
-
-Then open:
-
-```
-http://<ip>/auth/register
-```
-
----
-
-## 🔐 Authentication Flow
-
-1. Register a new account
-2. Receive verification code (terminal or email)
-3. Verify email
-4. Login
-5. Access protected routes
-
----
-
-## 📁 Project Structure
-
-```
-project/
-│
-├── requirements.txt
-├── schema.sql
-│
-└── flask_accounts/
-    ├── __init__.py
-    ├── config.py
-    ├── db.py
-    │
-    └── auth/
-        ├── __init__.py        # init_auth(app)
-        ├── routes.py
-        ├── service.py
-        ├── validators.py
-        ├── session.py
-        │
-        ├── static/
-        │   ├── auth.css
-        │
-        └── templates/
-            └── auth/
-                ├── login.html
-                ├── register.html
-                └── verify_email.html
-```
-
----
-
-## 🔌 Using This in Another Flask App
-
-### 1a. Install module
-
-Run:
-
-```
-pip install flask_accounts
-```
-
-Done.
-
----
-
-### 1b. Copy module
-
-Copy:
-
-```
-app/auth/
-schema.sql
-```
-
-into your new project.
-
----
-
-
-### 2. Add required config
-
-Your app must define:
-
-```python
-SECRET_KEY
-DB_HOST
-DB_NAME
-DB_USER
-DB_PASSWORD
-SMTP_HOST
-SMTP_PORT
-SMTP_USERNAME
-SMTP_PASSWORD
-SMTP_FROM_EMAIL
-USE_TERMINAL_EMAIL
-```
-
----
-
-### 3. Initialize auth
+## ⚡ Quick Start
 
 ```python
 from flask import Flask
 from flask_accounts import init_auth
 
-class Config:
-    # Your Configuration (Required)
+app = Flask(__name__)
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
+app.config["SECRET_KEY"] = "your-secret-key"
 
-    init_auth(app)
+# Database
+app.config["DB_HOST"] = "localhost"
+app.config["DB_NAME"] = "accountdb"
+app.config["DB_USER"] = "accountuser"
+app.config["DB_PASSWORD"] = "yourpassword"
 
-    return app
+# Email
+app.config["SMTP_HOST"] = "smtp.gmail.com"
+app.config["SMTP_PORT"] = 587
+app.config["SMTP_USERNAME"] = "youremail@gmail.com"
+app.config["SMTP_PASSWORD"] = "your_app_password"
+app.config["SMTP_FROM_EMAIL"] = "youremail@gmail.com"
+
+# Dev mode
+app.config["USE_TERMINAL_EMAIL"] = True
+
+init_auth(app)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 ```
 
----
-
-### 4. Routes provided
-
-* `/auth/register`
-* `/auth/login`
-* `/auth/logout`
-* `/auth/verify-email`
-* `/auth/resend-code`
+Then visit:
+http://localhost:5000/auth/register
 
 ---
 
-## 🧠 Example Protected Route
+## 📸 Screenshots
+
+### 🔐 Login
+![Login](https://raw.githubusercontent.com/GabeKL22/flask_accounts/main/docs/login.png)
+
+### 📝 Register
+![Register](https://raw.githubusercontent.com/GabeKL22/flask_accounts/main/docs/register.png)
+
+### 📧 Email Verification
+![Verify Email](https://raw.githubusercontent.com/GabeKL22/flask_accounts/main/docs/verify.png)
+
+---
+
+## ⚙️ Configuration
+
+### Required
+
+SECRET_KEY
+
+DB_HOST  
+DB_NAME  
+DB_USER  
+DB_PASSWORD  
+
+SMTP_HOST  
+SMTP_PORT  
+SMTP_USERNAME  
+SMTP_PASSWORD  
+SMTP_FROM_EMAIL  
+
+USE_TERMINAL_EMAIL  
+
+---
+
+### Optional
+
+LOGIN_REDIRECT = "home"  
+REGISTER_REDIRECT = "verify_email"  
+VERIFY_EMAIL_REDIRECT = "login"  
+
+LOGIN_BANNER = "Welcome Back"  
+LOGIN_BANNER_MSG = "Login to your account"  
+
+REGISTER_BANNER = "Create Account"  
+REGISTER_BANNER_MSG = "Register to get started"  
+
+AUTH_CUSTOM_CSS = "custom.css"
+
+---
+
+## 🎨 Custom Styling
+
+Place CSS in your app:
+
+your_app/static/custom.css
+
+Then:
+
+AUTH_CUSTOM_CSS = "custom.css"
+
+---
+
+## 🗄️ Database Setup
+
+CREATE DATABASE accountdb;
+
+CREATE USER accountuser WITH PASSWORD 'yourpassword';
+GRANT ALL PRIVILEGES ON DATABASE accountdb TO accountuser;
+
+Run schema:
+
+psql -U accountuser -d accountdb -f schema.sql
+
+---
+
+## 🔐 Authentication Flow
+
+1. Register  
+2. Verify email  
+3. Login  
+4. Access app  
+
+---
+
+## 🔌 Routes
+
+/auth/register  
+/auth/login  
+/auth/logout  
+/auth/verify-email  
+/auth/resend-code  
+
+---
+
+## 🧠 Protected Route Example
 
 ```python
 from flask import session, redirect, url_for
@@ -271,18 +172,17 @@ def dashboard():
 
 ## ⚠️ Notes
 
-* Uses session-based authentication (no JWT)
-* Uses raw SQL via `psycopg2`
-* Designed for extension into SaaS applications
+- Session-based auth  
+- PostgreSQL via psycopg2  
 
 ---
 
-## 🚀 Future Improvements
+## 🚀 Roadmap
 
-* Password reset flow
-* JWT / token-based auth
-* OAuth (Google, GitHub)
-* SQLAlchemy migration
+- Password reset  
+- OAuth  
+- JWT  
+- SQLAlchemy  
 
 ---
 
@@ -290,7 +190,8 @@ def dashboard():
 
 Gabriel Leffew
 
+---
 
 ## 📜 License
 
-MIT License
+MIT
