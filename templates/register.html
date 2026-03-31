@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6b8dd6, #8e44ad);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .card {
+            width: 100%;
+            max-width: 460px;
+            padding: 36px 32px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(14px);
+            color: white;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0 0 10px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 22px;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 44px 12px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        input:focus {
+            border-color: rgba(255,255,255,0.7);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 0;
+            width: auto;
+            margin: 0;
+        }
+
+        .toggle-password:hover {
+            opacity: 0.8;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            background: white;
+            color: #5b4bc4;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s ease;
+        }
+
+        button[type="submit"]:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        button[type="submit"]:disabled {
+            background: rgba(255,255,255,0.45);
+            color: rgba(91,75,196,0.7);
+            cursor: not-allowed;
+        }
+
+        .requirements {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .req {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.8;
+            margin: 6px 0;
+            transition: 0.2s ease;
+        }
+
+        .req-icon {
+            width: 18px;
+            display: inline-block;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .valid {
+            color: #7dffbf;
+            opacity: 1;
+        }
+
+        .invalid {
+            color: #ff9b9b;
+            opacity: 1;
+        }
+
+        .neutral {
+            color: rgba(255,255,255,0.85);
+            opacity: 0.85;
+        }
+
+        .flash {
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .bottom-text {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .bottom-text a {
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .bottom-text a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+<div class="card">
+    <h1>Create Account</h1>
+    <div class="subtitle">Register to get started</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST" id="registerForm" novalidate>
+        <div class="form-group">
+            <label for="firstname">First Name</label>
+            <input type="text" id="firstname" name="firstname" required>
+        </div>
+
+        <div class="form-group">
+            <label for="lastname">Last Name</label>
+            <input type="text" id="lastname" name="lastname" required>
+        </div>
+
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" required>
+                <button type="button" class="toggle-password" data-target="password">Show</button>
+            </div>
+
+            <div class="requirements">
+                <div id="length" class="req neutral">
+                    <span class="req-icon">•</span>
+                    <span>At least 8 characters</span>
+                </div>
+                <div id="uppercase" class="req neutral">
+                    <span class="req-icon">•</span>
+                    <span>At least 1 uppercase letter</span>
+                </div>
+                <div id="lowercase" class="req neutral">
+                    <span class="req-icon">•</span>
+                    <span>At least 1 lowercase letter</span>
+                </div>
+                <div id="number" class="req neutral">
+                    <span class="req-icon">•</span>
+                    <span>At least 1 number</span>
+                </div>
+                <div id="symbol" class="req neutral">
+                    <span class="req-icon">•</span>
+                    <span>At least 1 symbol</span>
+                </div>
+                <div id="match" class="req neutral">
+                    <span class="req-icon">•</span>
+                    <span>Passwords match</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <div class="password-wrapper">
+                <input type="password" id="confirm_password" name="confirm_password" required>
+                <button type="button" class="toggle-password" data-target="confirm_password">Show</button>
+            </div>
+        </div>
+
+        <button type="submit" id="submitBtn" disabled>Create Account</button>
+    </form>
+
+    <div class="bottom-text">
+        Already have an account? <a href="/login">Login</a>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("registerForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirm_password");
+
+    function setRequirement(id, passed, touched = true) {
+        const el = document.getElementById(id);
+        const icon = el.querySelector(".req-icon");
+
+        el.classList.remove("valid", "invalid", "neutral");
+
+        if (!touched) {
+            el.classList.add("neutral");
+            icon.textContent = "•";
+            return;
+        }
+
+        if (passed) {
+            el.classList.add("valid");
+            icon.textContent = "✓";
+        } else {
+            el.classList.add("invalid");
+            icon.textContent = "✕";
+        }
+    }
+
+    function validatePasswords() {
+        const value = password.value;
+        const confirmValue = confirmPassword.value;
+
+        const checks = {
+            length: value.length >= 8,
+            uppercase: /[A-Z]/.test(value),
+            lowercase: /[a-z]/.test(value),
+            number: /[0-9]/.test(value),
+            symbol: /[^A-Za-z0-9]/.test(value)
+        };
+
+        const passwordTouched = value.length > 0;
+        const confirmTouched = confirmValue.length > 0;
+
+        setRequirement("length", checks.length, passwordTouched);
+        setRequirement("uppercase", checks.uppercase, passwordTouched);
+        setRequirement("lowercase", checks.lowercase, passwordTouched);
+        setRequirement("number", checks.number, passwordTouched);
+        setRequirement("symbol", checks.symbol, passwordTouched);
+
+        const passwordsMatch = passwordTouched && confirmTouched && value === confirmValue;
+        setRequirement("match", passwordsMatch, confirmTouched);
+
+        const allValid =
+            checks.length &&
+            checks.uppercase &&
+            checks.lowercase &&
+            checks.number &&
+            checks.symbol &&
+            passwordsMatch;
+
+        submitBtn.disabled = !allValid;
+        return allValid;
+    }
+
+    password.addEventListener("input", validatePasswords);
+    confirmPassword.addEventListener("input", validatePasswords);
+
+    document.querySelectorAll(".toggle-password").forEach(button => {
+        button.addEventListener("click", () => {
+            const targetId = button.getAttribute("data-target");
+            const input = document.getElementById(targetId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                button.textContent = "Hide";
+            } else {
+                input.type = "password";
+                button.textContent = "Show";
+            }
+        });
+    });
+
+    form.addEventListener("submit", (e) => {
+        if (!validatePasswords()) {
+            e.preventDefault();
+        }
+    });
+</script>
+</body>
+</html>

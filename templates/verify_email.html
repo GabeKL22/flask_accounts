@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Email</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6b8dd6, #8e44ad);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            padding: 36px 32px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(14px);
+            color: white;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 { margin: 0 0 10px 0; text-align: center; }
+        p { text-align: center; opacity: 0.95; }
+
+        .form-group { margin-bottom: 16px; }
+
+        input {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.16);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input::placeholder { color: rgba(255,255,255,0.75); }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            color: #5b4bc4;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .secondary-btn {
+            margin-top: 12px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .flash {
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.18);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Verify Email</h1>
+        <p>We sent a 6-digit code to <strong>{{ email }}</strong></p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="/verify-email" method="POST">
+            <div class="form-group">
+                <input
+                    type="text"
+                    name="verification_code"
+                    maxlength="6"
+                    placeholder="Enter 6-digit code"
+                    required
+                />
+            </div>
+            <button type="submit">Verify Email</button>
+        </form>
+
+        <form action="/resend-code" method="POST">
+            <button type="submit" class="secondary-btn">Resend Code</button>
+        </form>
+    </div>
+</body>
+</html>
