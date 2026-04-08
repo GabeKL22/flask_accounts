@@ -28,6 +28,8 @@ A modular, reusable authentication system for Flask applications.
 pip install flask-accounts
 ```
 
+Latest version: v0.2.0
+
 ---
 
 ## ⚡ Quick Start
