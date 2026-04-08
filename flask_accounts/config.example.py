@@ -35,7 +35,14 @@ class Config:
 
     # Auth configuration
     PASSWORD_RESET_TOKEN_EXPIRY = 3600  # seconds
-        
+    AUTH_ENABLE_RATE_LIMITS = True
+    AUTH_RATE_LIMIT_STORAGE_URI = "memory://"
+
+    AUTH_LOGIN_RATE_LIMIT = "5 per minute"
+    AUTH_FORGOT_PASSWORD_RATE_LIMIT = "3 per 10 minutes"
+    AUTH_RESEND_CODE_RATE_LIMIT = "3 per 10 minutes"
+    AUTH_VERIFY_EMAIL_RATE_LIMIT = "5 per 10 minutes"
+    
     # Dev mode:
     # True  -> print verification code & reset link in terminal instead of sending email
     # False -> actually send email through SMTP

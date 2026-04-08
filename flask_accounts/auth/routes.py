@@ -12,7 +12,7 @@ from flask import (
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flask_accounts.auth import auth_bp
+from flask_accounts.auth import auth_bp, limiter
 from flask_accounts.auth.service import generate_verification_code, send_verification_email, verify_password_reset_token, generate_password_reset_token, send_password_reset_email_message
 from flask_accounts.auth.session import login_user, logout_user
 from flask_accounts.auth.validators import is_valid_password
@@ -134,6 +134,7 @@ def show_register():
 
 
 @auth_bp.route("/verify-email", methods=["GET", "POST"])
+@limiter.limit(lambda: current_app.config.get("AUTH_VERIFY_EMAIL_RATE_LIMIT", "5 per minute"), methods=["POST"])
 def verify_email():
     email = session.get("pending_verification_email")
 
@@ -217,6 +218,7 @@ def verify_email():
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit(lambda: current_app.config.get("AUTH_LOGIN_RATE_LIMIT", "5 per minute"), methods=["POST"])
 def show_login():
     if request.method == "GET":
         return render_template("auth/login.html", login_banner=current_app.config.get("LOGIN_BANNER", "Welcome Back"), login_banner_msg=current_app.config.get("LOGIN_BANNER_MSG", "Login to your account"), auth_custom_css=css_style())
@@ -247,7 +249,7 @@ def show_login():
         user = cur.fetchone()
 
         if not user:
-            flash("User does not exist.", "error")
+            flash("Username and password do not match.", "error")
             return redirect(url_for("auth.show_login"))
 
         if not check_password_hash(user["password_hash"], password):
@@ -294,6 +296,7 @@ def logout():
 
 
 @auth_bp.route("/resend-code", methods=["POST"])
+@limiter.limit(lambda: current_app.config.get("AUTH_RESEND_CODE_RATE_LIMIT", "5 per minute"), methods=["POST"])
 def resend_code():
     email = session.get("pending_verification_email")
 
@@ -344,6 +347,7 @@ def resend_code():
             conn.close()
 
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])
+@limiter.limit(lambda: current_app.config.get("AUTH_FORGOT_PASSWORD_RATE_LIMIT", "5 per minute"), methods=["POST"])
 def forgot_password():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
