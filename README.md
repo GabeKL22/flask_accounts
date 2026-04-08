@@ -22,10 +22,15 @@ A modular, reusable authentication system for Flask applications.
 ```bash
 pip install flask-accounts
 ```
+---
+
+
 
 ---
 
 ## ⚡ Quick Start
+
+### Create run.py:
 
 ```python
 from flask import Flask
@@ -42,11 +47,11 @@ app.config["DB_USER"] = "accountuser"
 app.config["DB_PASSWORD"] = "yourpassword"
 
 # Email
-app.config["SMTP_HOST"] = "smtp.gmail.com"
+app.config["SMTP_HOST"] = "smtp.email.com"
 app.config["SMTP_PORT"] = 587
-app.config["SMTP_USERNAME"] = "youremail@gmail.com"
+app.config["SMTP_USERNAME"] = "youremail@email.com"
 app.config["SMTP_PASSWORD"] = "your_app_password"
-app.config["SMTP_FROM_EMAIL"] = "youremail@gmail.com"
+app.config["SMTP_FROM_EMAIL"] = "youremail@email.com"
 
 # Dev mode
 app.config["USE_TERMINAL_EMAIL"] = True
@@ -57,8 +62,17 @@ if __name__ == "__main__":
     app.run(debug=True)
 ```
 
-Then visit:
-http://localhost:5000/auth/register
+### 🛠️ Database Setup
+
+### Recommended (first-time setup):
+
+```flask --app run.py auth-bootstrap-db```
+
+Enter your psql admin username and password - this will create the db.
+
+```python run.py```
+
+That's it, you now hyave a fully working login and register page with PostgreSQL support. Visit the IP link in the terminal given by flask to open the page.
 
 ---
 
