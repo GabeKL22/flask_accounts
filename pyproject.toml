@@ -40,4 +40,4 @@ where = ["."]
 include = ["flask_accounts*"]
 
 [tool.setuptools.package-data]
-flask_accounts = ["auth/templates/auth/*.html"]
+flask_accounts = ["auth/templates/auth/*.html", "schema.sql"]

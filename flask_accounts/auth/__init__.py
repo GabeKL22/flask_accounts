@@ -10,6 +10,8 @@ auth_bp = Blueprint(
 
 def init_auth(app):
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    register_cli_commands(app)
 
 # Import routes AFTER blueprint is created
 from . import routes
+from .cli import register_cli_commands

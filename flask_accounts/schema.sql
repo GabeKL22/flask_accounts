@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS users;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     firstname VARCHAR(80) NOT NULL,
     lastname VARCHAR(80) NOT NULL,
