@@ -5,6 +5,7 @@ example_app
 run.py
 notes.txt
 pypi.txt
+/templates/
 
 # Virtual environment
 venv/

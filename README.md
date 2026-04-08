@@ -4,16 +4,21 @@
 
 A modular, reusable authentication system for Flask applications.
 
+---
+
 ## ✨ Features
 
 - User registration
 - Login / logout
 - Email verification (with expiration + resend)
+- Password reset flow
 - Password hashing (Werkzeug)
+- Login and Auth request limiting 
 - PostgreSQL backend
 - Session-based authentication
 - Configurable UI (banners, redirects, custom CSS)
 - SMTP email support (or terminal mode for development)
+- One-command database bootstrap
 
 ---
 
@@ -22,15 +27,12 @@ A modular, reusable authentication system for Flask applications.
 ```bash
 pip install flask-accounts
 ```
----
-
-
 
 ---
 
 ## ⚡ Quick Start
 
-### Create run.py:
+### Create `run.py`
 
 ```python
 from flask import Flask
@@ -53,7 +55,7 @@ app.config["SMTP_USERNAME"] = "youremail@email.com"
 app.config["SMTP_PASSWORD"] = "your_app_password"
 app.config["SMTP_FROM_EMAIL"] = "youremail@email.com"
 
-# Dev mode
+# Dev mode (prints emails to terminal)
 app.config["USE_TERMINAL_EMAIL"] = True
 
 init_auth(app)
@@ -62,17 +64,124 @@ if __name__ == "__main__":
     app.run(debug=True)
 ```
 
-### 🛠️ Database Setup
+---
 
-### Recommended (first-time setup):
+## 🛠️ Database Setup
 
-```flask --app run.py auth-bootstrap-db```
+### Recommended (first-time setup)
 
-Enter your psql admin username and password - this will create the db.
+```bash
+flask --app run.py auth-bootstrap-db
+```
 
-```python run.py```
+You will be prompted for your PostgreSQL admin credentials.
 
-That's it, you now hyave a fully working login and register page with PostgreSQL support. Visit the IP link in the terminal given by flask to open the page.
+This command will:
+- Create the database (if it does not exist)
+- Create the user (if it does not exist)
+- Grant permissions
+- Initialize all required tables
+
+Then run:
+
+```bash
+python run.py
+```
+
+Visit the URL shown in your terminal to access your app.
+
+---
+
+### Initialize schema only (existing database)
+
+```bash
+flask --app run.py auth-init-db
+```
+
+---
+
+## 🧩 Working with Your App
+
+Flask Accounts integrates directly with your existing Flask routes and templates.
+
+---
+
+### 🔁 Redirects
+
+Control where users are sent after key actions:
+
+```python
+LOGIN_REDIRECT = "home" # <- MUST BE IN 'templates/home.html'>
+REGISTER_REDIRECT = "auth.verify_email"
+VERIFY_EMAIL_REDIRECT = "auth.show_login"
+LOGOUT_REDIRECT = "auth.show_login"
+```
+
+These values must match your Flask **endpoint names**.
+
+#### Example
+
+```python
+from flask import render_template
+
+@app.route("/home")
+def home():
+    return render_template("home.html")
+```
+
+---
+
+### 🔓 Logout
+
+Use the built-in logout route:
+
+```html
+<form method="POST" action="{{ url_for('auth.logout') }}">
+    <button type="submit">Logout</button>
+</form>
+```
+
+This will:
+- Clear the session
+- Redirect based on `LOGOUT_REDIRECT`
+
+---
+
+### 🔐 Protected Route Example
+
+```python
+from flask import session, redirect, url_for
+
+@app.route("/dashboard")
+def dashboard():
+    if "user_id" not in session:
+        return redirect(url_for("auth.show_login"))
+    return "Welcome to your dashboard"
+```
+
+---
+
+### 💡 Notes
+
+- Blueprint routes use: "auth.route_name"
+- App routes use: "route_name"
+- Session stores `user_id` when authenticated
+
+---
+
+## 🎨 Custom Styling
+
+Place your CSS file in your app:
+
+```
+your_app/static/custom.css
+```
+
+Then configure:
+
+```python
+AUTH_CUSTOM_CSS = "custom.css"
+```
 
 ---
 
@@ -112,42 +221,33 @@ USE_TERMINAL_EMAIL
 
 ### Optional
 
-LOGIN_REDIRECT = "home"  
-REGISTER_REDIRECT = "verify_email"  
-VERIFY_EMAIL_REDIRECT = "login"  
+```python
+# Redirects
+LOGIN_REDIRECT = "home"
+REGISTER_REDIRECT = "auth.verify_email"
+VERIFY_EMAIL_REDIRECT = "auth.show_login"
+LOGOUT_REDIRECT = "auth.show_login"
 
-LOGIN_BANNER = "Welcome Back"  
-LOGIN_BANNER_MSG = "Login to your account"  
+# UI
+LOGIN_BANNER = "Welcome Back"
+LOGIN_BANNER_MSG = "Login to your account"
 
-REGISTER_BANNER = "Create Account"  
-REGISTER_BANNER_MSG = "Register to get started"  
+REGISTER_BANNER = "Create Account"
+REGISTER_BANNER_MSG = "Register to get started"
 
+# Password reset
+PASSWORD_RESET_TOKEN_EXPIRY = 3600
+RESET_PASSWORD_REDIRECT = "auth.show_login"
+
+# Styling
 AUTH_CUSTOM_CSS = "custom.css"
 
----
-
-## 🎨 Custom Styling
-
-Place CSS in your app:
-
-your_app/static/custom.css
-
-Then:
-
-AUTH_CUSTOM_CSS = "custom.css"
-
----
-
-## 🗄️ Database Setup
-
-CREATE DATABASE accountdb;
-
-CREATE USER accountuser WITH PASSWORD 'yourpassword';
-GRANT ALL PRIVILEGES ON DATABASE accountdb TO accountuser;
-
-Run schema:
-
-psql -U accountuser -d accountdb -f schema.sql
+# Rate limiting
+AUTH_LOGIN_RATE_LIMIT = "5 per minute"
+AUTH_FORGOT_PASSWORD_RATE_LIMIT = "3 per 10 minutes"
+AUTH_RESEND_CODE_RATE_LIMIT = "3 per 10 minutes"
+AUTH_VERIFY_EMAIL_RATE_LIMIT = "5 per 10 minutes"
+```
 
 ---
 
@@ -156,47 +256,40 @@ psql -U accountuser -d accountdb -f schema.sql
 1. Register  
 2. Verify email  
 3. Login  
-4. Access app  
+4. Reset password (if needed)  
+5. Access protected routes  
+6. Logout  
 
 ---
 
 ## 🔌 Routes
 
-/auth/register  
-/auth/login  
-/auth/logout  
-/auth/verify-email  
-/auth/resend-code  
-
----
-
-## 🧠 Protected Route Example
-
-```python
-from flask import session, redirect, url_for
-
-@app.route("/dashboard")
-def dashboard():
-    if "user_id" not in session:
-        return redirect(url_for("auth.show_login"))
-    return "Welcome to your dashboard"
+```
+/auth/register
+/auth/login
+/auth/logout
+/auth/verify-email
+/auth/resend-code
+/auth/forgot-password
+/auth/reset-password/<token>
 ```
 
 ---
 
 ## ⚠️ Notes
 
-- Session-based auth  
-- PostgreSQL via psycopg2  
+- Session-based authentication (no JWT)
+- PostgreSQL via `psycopg2`
+- Database setup commands are safe to run multiple times (idempotent)
 
 ---
 
 ## 🚀 Roadmap
 
-- Password reset  
-- OAuth  
-- JWT  
-- SQLAlchemy  
+- OAuth (Google, GitHub)
+- JWT / token-based authentication
+- SQLAlchemy support
+- Rate limiting
 
 ---
 
