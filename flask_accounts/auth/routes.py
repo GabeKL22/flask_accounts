@@ -13,7 +13,7 @@ from psycopg2.extras import RealDictCursor
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from flask_accounts.auth import auth_bp
-from flask_accounts.auth.service import generate_verification_code, send_verification_email
+from flask_accounts.auth.service import generate_verification_code, send_verification_email, verify_password_reset_token, generate_password_reset_token, send_password_reset_email_message
 from flask_accounts.auth.session import login_user, logout_user
 from flask_accounts.auth.validators import is_valid_password
 from flask_accounts.db import get_db_connection
@@ -279,8 +279,13 @@ def show_login():
         if conn:
             conn.close()
 
+@auth_bp.app_context_processor
+def inject_auth_helpers():
+    return {
+        "logout_url": lambda: url_for("auth.logout")
+    }
 
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=["GET", "POST"])
 def logout():
     logout_user()
 
@@ -337,3 +342,91 @@ def resend_code():
             cur.close()
         if conn:
             conn.close()
+
+@auth_bp.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT id, email FROM users WHERE email = %s", (email,))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        # Always return the same message to avoid email enumeration
+        flash("If an account with that email exists, a reset link has been sent.", "info")
+
+        if user:
+            user_id, user_email = user
+            token = generate_password_reset_token(user_id, user_email)
+            reset_url = url_for("auth.reset_password", token=token, _external=True)
+
+            send_password_reset_email_message(
+                to_email=user_email,
+                subject="Reset your password",
+                body=f"Click this link to reset your password:\n\n{reset_url}\n\n"
+                     f"This link will expire in "
+                     f"{current_app.config.get('PASSWORD_RESET_TOKEN_EXPIRY', 3600) // 60} minutes."
+            )
+
+        return redirect(url_for("auth.forgot_password"))
+
+    return render_template("auth/forgot_password.html")
+
+@auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    data, error = verify_password_reset_token(token)
+
+    if error == "expired":
+        flash("This password reset link has expired.", "error")
+        return redirect(url_for("auth.forgot_password"))
+
+    if error == "invalid":
+        flash("This password reset link is invalid.", "error")
+        return redirect(url_for("auth.forgot_password"))
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+
+        valid, error = is_valid_password(password)
+        if not valid:
+            flash(error, "error")
+            return render_template("auth/reset_password.html", token=token)
+
+        if password != confirm_password:
+            flash("Passwords do not match.", "error")
+            return render_template("auth/reset_password.html", token=token)
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT id, email FROM users WHERE id = %s",
+            (data["user_id"],)
+        )
+        user = cur.fetchone()
+
+        if not user or user[1].lower() != data["email"].lower():
+            cur.close()
+            conn.close()
+            flash("This password reset link is invalid.", "error")
+            return redirect(url_for("auth.forgot_password"))
+
+        new_hash = generate_password_hash(password)
+
+        cur.execute(
+            "UPDATE users SET password_hash = %s WHERE id = %s",
+            (new_hash, data["user_id"])
+        )
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        flash("Your password has been reset. You can now log in.", "success")
+        return redirect(url_for(current_app.config.get("RESET_PASSWORD_REDIRECT", "auth.show_login")))
+
+    return render_template("auth/reset_password.html", token=token)
